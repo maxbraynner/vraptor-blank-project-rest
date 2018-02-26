@@ -2,12 +2,13 @@ package br.com.api.dao;
 
 
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 
 public abstract class DAOGeneric<T, E> implements DAO<T, E> {	
 	private Class<T> clas;
@@ -49,12 +50,35 @@ public abstract class DAOGeneric<T, E> implements DAO<T, E> {
 
 	@Override
 	public List<T> listar() {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<T> cq = cb.createQuery(clas);
-		Root<T> rootEntry = cq.from(clas);
-		CriteriaQuery<T> all = cq.select(rootEntry);
-		TypedQuery<T> allQuery = entityManager.createQuery(all);
-		return allQuery.getResultList();
+		return entityManager.createQuery(buildQuery()).getResultList();
+	}
+	
+	public List<T> listar(int inicioPaginacao, int qtdRegistros) {
+		return entityManager.createQuery(buildQuery())
+				.setFirstResult(inicioPaginacao)
+				.setMaxResults(qtdRegistros)
+				.getResultList();
+	}
+
+	private CriteriaQuery<T> buildQuery() {
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+		
+		CriteriaQuery<T> query = builder.createQuery(clas);
+		Root<T> rootEntry = query.from(clas);
+		
+		return query.select(rootEntry);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<T> consultarPor(@SuppressWarnings("rawtypes") SingularAttribute atributo, Object valor){
+		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+
+		CriteriaQuery<T> query = builder.createQuery(clas);
+		Root<T> rootEntry = query.from(clas);
+		
+		query.select(rootEntry).where(builder.and(builder.equal(rootEntry.get(atributo), valor)));
+		
+		return entityManager.createQuery(query).getResultList();
 	}
 
 	public EntityManager getEntityManager() {

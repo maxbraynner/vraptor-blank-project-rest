@@ -123,7 +123,7 @@ public class AuthController {
 		// cria chave de recuperação
 		String chave = UtilGeradorChaveNovaSenha.getChave();
 		
-    	// altera o o fornecedo com a nova chave
+    	// altera com a nova chave
 		usuario.setChaveAlteracaoSenha(chave);
 		
 		usuarioDAO.alterar(usuario);
@@ -155,7 +155,7 @@ public class AuthController {
     	Usuario usuario = usuarioDAO.consultarPorEmail(email);
 
     	
-    	// bad request caso não encontre o fornecedor ou a chave não seja igual a passada na requisição
+    	// bad request caso não encontre ou a chave não seja igual a passada na requisição
     	validator.addIf(usuario == null || 
     			usuario.getChaveAlteracaoSenha() == null ||
     			!usuario.getChaveAlteracaoSenha().equals(chave.toLowerCase()), 
