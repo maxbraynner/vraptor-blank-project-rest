@@ -1,9 +1,6 @@
 package br.com.api.util;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import br.com.api.model.Usuario;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.view.Results;
 
@@ -30,16 +27,12 @@ public class UtilResult {
 	 * @param object
 	 */
 	public static void retornarObjeto(Result result, Object object){
-		if (isWithoutRoot(object)){
-			UtilResult.retornarObjeto(result, object, true);
-		}else {
-			UtilResult.retornarObjeto(result, object, false);
-			
-		}
+		UtilResult.retornarObjeto(result, object, isWithoutRoot(object));
 	}
 
 	private static boolean isWithoutRoot(Object object) {
-		return object instanceof List || object instanceof Map || object instanceof Set;
+//		return object instanceof List || object instanceof Map || object instanceof Set;
+		return !(object instanceof Usuario);
 	}
 	
 	/**
@@ -120,5 +113,10 @@ public class UtilResult {
 	 */
 	public static void retornarCodigoHttp(Result result, int codigo) {
 		result.use(Results.http()).setStatusCode(codigo);
+	}
+	
+	public static void retornarJsonDeString(Result result, String json, int codigo) {
+		result.use(Results.http()).setStatusCode(codigo);
+		result.use(Results.http()).addHeader("Content-Type", "application/json").body(json);
 	}
 }
